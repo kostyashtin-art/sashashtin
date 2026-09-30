@@ -1,1 +1,9 @@
-{"name":"Толкания малыша","short_name":"Толкания","start_url":"./","display":"standalone","background_color":"#f5f2ff","theme_color":"#7c5cff","lang":"ru","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name":"Наш малыш — дневник движений",
+  "short_name":"Наш малыш",
+  "start_url":"/sashashtin/",
+  "display":"standalone",
+  "background_color":"#fff8fb",
+  "theme_color":"#fff7fb",
+  "description":"Семейный дневник движений малыша"
+}

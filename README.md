@@ -1,13 +1,17 @@
-# Толкания малыша
+# Наш малыш ♡
 
-Небольшое мобильное PWA-приложение для отметки движений ребёнка.
+Семейный PWA-дневник движений малыша для GitHub Pages + Supabase.
 
-## Запуск через GitHub Pages
-1. Создайте новый публичный репозиторий на GitHub.
-2. Загрузите все файлы из этой папки в корень репозитория.
-3. Откройте **Settings → Pages**.
-4. В разделе **Build and deployment** выберите **Deploy from a branch**.
-5. Выберите ветку `main` и папку `/ (root)` → **Save**.
-6. Через некоторое время GitHub выдаст адрес сайта.
+## Файлы
+- `index.html` — приложение и дизайн
+- `config.js` — подключение Supabase
+- `manifest.json` — PWA
+- `sw.js` — service worker
+- `icon.svg` — иконка
+- `supabase.sql` — SQL-схема из предыдущей версии проекта
 
-Приложение хранит отметки в localStorage браузера конкретного устройства. Данные не передаются на сервер.
+## GitHub Pages
+Репозиторий: `kostyashtin-art/sashashtin`
+Адрес: `https://kostyashtin-art.github.io/sashashtin/`
+
+Источник Pages: GitHub Actions.
