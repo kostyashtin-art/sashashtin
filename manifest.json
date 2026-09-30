@@ -1,9 +1,10 @@
 {
-  "name":"Наш малыш — дневник движений",
+  "name":"Наш малыш",
   "short_name":"Наш малыш",
-  "start_url":"/sashashtin/",
+  "start_url":"./",
   "display":"standalone",
-  "background_color":"#fff8fb",
+  "background_color":"#fff7fb",
   "theme_color":"#fff7fb",
-  "description":"Семейный дневник движений малыша"
+  "description":"Семейный дневник движений малыша",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]
 }
