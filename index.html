@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7c5cff"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Толкания малыша</title>
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(145deg,#f5f2ff,#eef7ff);color:#202034;min-height:100vh}button{font:inherit}.app{max-width:560px;margin:auto;padding:22px 18px 34px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:800;font-size:21px}.date{font-size:13px;color:#77768a}.card{background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 35px rgba(52,43,105,.10);border-radius:26px;padding:22px;margin-bottom:16px}.today{text-align:center}.label{font-size:14px;color:#7c7a8e}.count{font-size:76px;line-height:1;font-weight:850;margin:8px 0}.sub{color:#77768a;font-size:14px}.kick{width:210px;height:210px;border:0;border-radius:50%;margin:22px auto 8px;display:block;color:white;font-size:22px;font-weight:800;background:linear-gradient(145deg,#8d72ff,#694be8);box-shadow:0 16px 28px rgba(105,75,232,.30),inset 0 -7px 0 rgba(0,0,0,.10);cursor:pointer;transition:.12s}.kick:active{transform:scale(.96);box-shadow:0 8px 18px rgba(105,75,232,.22),inset 0 -3px 0 rgba(0,0,0,.1)}.hint{text-align:center;color:#8a8898;font-size:12px;margin-top:10px}.row{display:flex;gap:10px}.secondary{flex:1;border:0;border-radius:15px;padding:13px;background:#f0eef8;color:#4e4b62;font-weight:700;cursor:pointer}.secondary:disabled{opacity:.45}.section-title{font-size:17px;font-weight:800;margin-bottom:12px}.empty{text-align:center;color:#88869a;padding:20px 0}.event{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #eeeaf6}.event:last-child{border-bottom:0}.time{font-weight:750}.ago{font-size:12px;color:#9895a7}.dot{width:10px;height:10px;background:#8065f4;border-radius:50%;margin-right:10px;display:inline-block}.day{font-size:13px;color:#77768a;margin:14px 0 5px;font-weight:700}.danger{color:#a44747;background:#fff0f0}.footer{text-align:center;color:#9a98a8;font-size:11px;margin-top:18px;line-height:1.5}
+@media(max-width:380px){.kick{width:180px;height:180px}.count{font-size:64px}}
+</style>
+</head>
+<body><main class="app">
+<header class="top"><div class="brand">👶 Толкания малыша</div><div class="date" id="date"></div></header>
+<section class="card today"><div class="label">Сегодня</div><div class="count" id="count">0</div><div class="sub">движений отмечено</div><button class="kick" id="kick">Толчок</button><div class="hint">Нажимайте один раз на каждое движение</div></section>
+<section class="card"><div class="section-title">Последние движения</div><div id="events"></div><div class="row"><button class="secondary" id="undo" disabled>↩ Отменить последний</button><button class="secondary danger" id="clear">Очистить сегодня</button></div></section>
+<div class="footer">Данные сохраняются только на этом устройстве в браузере.<br>Это приложение предназначено для записи наблюдений, а не для медицинской диагностики.</div>
+</main>
+<script>
+const KEY='baby-kicks-v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'[]');
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function dayKey(d){return new Date(d).toLocaleDateString('sv-SE')}
+function today(){return dayKey(Date.now())}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}
+function render(){
+ const t=today(), todays=data.filter(x=>dayKey(x)===t).sort((a,b)=>b-a);
+ $('date').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+ $('count').textContent=todays.length;
+ $('undo').disabled=todays.length===0;
+ const box=$('events');
+ if(!data.length){box.innerHTML='<div class="empty">Пока движений нет.<br>Нажмите кнопку, когда почувствуете толчок.</div>';return}
+ const groups={};
+ [...data].sort((a,b)=>b-a).forEach(ts=>(groups[dayKey(ts)]??=[]).push(ts));
+ box.innerHTML=Object.entries(groups).slice(0,7).map(([day,arr])=>`<div class="day">${day===t?'Сегодня':fmtDate(arr[0])}</div>`+arr.slice(0,12).map(ts=>`<div class="event"><div><span class="dot"></span><span class="time">${fmtTime(ts)}</span></div><span class="ago">движение</span></div>`).join('')).join('');
+}
+$('kick').onclick=()=>{data.push(Date.now());save();navigator.vibrate?.(30)};
+$('undo').onclick=()=>{const t=today(), i=data.map((x,j)=>[x,j]).filter(([x])=>dayKey(x)===t).sort((a,b)=>b[0]-a[0])[0]?.[1];if(i!==undefined){data.splice(i,1);save()}};
+$('clear').onclick=()=>{if(confirm('Удалить все движения за сегодня?')){data=data.filter(x=>dayKey(x)!==today());save()}};
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script></body></html>
