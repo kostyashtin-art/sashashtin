@@ -59,7 +59,7 @@ function renderMonth(){
 }
 
 async function cleanup(){
- await db.rpc("cleanup_old_kicks");
+ try{ await db.rpc("cleanup_old_kicks"); }catch(e){ console.warn("cleanup:",e); }
 }
 
 async function load(){
