@@ -1,26 +1,19 @@
-# Наш малыш — готовая версия
-
-Простое семейное приложение без регистрации.
-
-- Кнопка «ТОЛЧОК»
-- Точная дата и время до секунды
-- Синхронизация двух телефонов
-- История
-- Статистика за месяц
-- Автоматическое удаление данных старше месяца
-- PWA для телефона
-
-## Supabase
-Anonymous Sign-Ins должны быть включены.
-После этого один раз выполните `supabase.sql`.
-
-ВАЖНО: не выполняйте повторно `alter publication supabase_realtime add table public.kicks` — kicks уже подключена к Realtime.
-
-## GitHub
-Загрузите ВСЕ файлы архива в корень репозитория:
-`kostyashtin-art/sashashtin`
-
-После Commit дождитесь GitHub Actions.
-
-Сайт:
-https://kostyashtin-art.github.io/sashashtin/
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff7fb">
+<meta name="description" content="Наш малыш — дневник движений">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="css/style.css">
+<title>Наш малыш ♡</title>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
