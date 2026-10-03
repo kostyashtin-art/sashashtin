@@ -1,19 +1,19 @@
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fff7fb">
-<meta name="description" content="Наш малыш — дневник движений">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg">
-<link rel="stylesheet" href="css/style.css">
-<title>Наш малыш ♡</title>
-</head>
-<body>
-<div id="app"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="js/app.js"></script>
-</body>
-</html>
+# Наш малыш — финальная версия
+
+Простое приложение для двух телефонов без регистрации.
+
+Функции:
+- большая кнопка «ТОЛЧОК»;
+- точная дата и время до секунды;
+- синхронизация между телефонами;
+- история;
+- статистика за выбранный месяц;
+- при наведении на столбец графика показывается дата и количество толчков;
+- выгрузка месячной аналитики в Word;
+- автоматическое удаление записей старше месяца.
+
+Перед загрузкой в GitHub:
+1. В Supabase включить Authentication → Sign In / Providers → Anonymous Sign-Ins.
+2. Один раз выполнить `supabase.sql`.
+3. Не выполнять `alter publication supabase_realtime add table public.kicks` повторно.
+4. Загрузить весь архив в корень `kostyashtin-art/sashashtin`.

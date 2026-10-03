@@ -1,32 +1,3 @@
-
-# Наш малыш — простой семейный счётчик
-
-Версия без регистрации и без экранов входа.
-
-## Как работает
-- На каждом телефоне приложение автоматически создаёт анонимную Supabase-сессию.
-- Оба телефона используют одну семейную комнату.
-- Нажатие «ТОЛЧОК» сохраняется с точной датой и временем до секунды.
-- Записи синхронизируются между телефонами через Supabase Realtime.
-- Данные старше одного месяца автоматически удаляются.
-- Есть статистика за месяц и история сегодняшних движений.
-
-## Важно перед запуском
-
-1. В Supabase откройте:
-   Authentication → Sign In / Providers
-2. Включите **Anonymous Sign-Ins**.
-3. Откройте SQL Editor и один раз выполните `supabase.sql`.
-4. Загрузите содержимое архива в репозиторий `kostyashtin-art/sashashtin`.
-5. GitHub Pages должен быть настроен на GitHub Actions.
-
-## Технически
-Сайт не просит email, пароль или регистрацию. У каждого телефона создаётся техническая анонимная сессия Supabase.
-
-Не публикуйте `sb_secret_...` ключи. В `config.js` используется только publishable key.
-
-Family ID: c06074a2-a73c-4e3b-a2f0-e1ed320cce5b
-
-
-## Аналитика
-При наведении мышкой на столбец графика показывается дата и количество толчков. Кнопка «Скачать аналитику за месяц в Word» формирует файл `.doc`, который открывается в Microsoft Word, со сводкой и таблицей по каждому дню.
+const CACHE="sashashtin-final-v1";
+self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./index.html","./config.js","./manifest.json","./icon.svg","./css/style.css","./js/app.js"]))));
+self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
