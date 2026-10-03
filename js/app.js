@@ -54,7 +54,7 @@ user=r.data.user;
 async function load(){
 const r=await db.from("kicks").select("id,created_at,created_by").eq("family_id",cfg.familyId).order("created_at",{ascending:false}).limit(5000);
 if(r.error)throw r.error;
-kicks=r.data||[];renderToday();renderRecent();renderMonth();
+kicks=r.data||[];renderToday();renderMonth();
 }
 
 function renderToday(){
