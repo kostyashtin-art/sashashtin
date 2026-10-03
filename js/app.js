@@ -1,4 +1,3 @@
-
 const cfg=window.SUPABASE_CONFIG||{};
 const db=window.supabase.createClient(cfg.url,cfg.publishableKey);
 let user=null, kicks=[], month=new Date(), loading=false;
@@ -33,6 +32,7 @@ function layout(){
       <div class="stat"><strong id="max">0</strong><span>максимум за день</span></div>
     </div>
     <div id="chart" class="chart"></div>
+    <div class="export-row"><button id="exportWord" class="btn primary export-btn">Скачать аналитику за месяц в Word</button></div>
    </section>
    <p class="notice">Записи хранятся в семейном дневнике один месяц, затем автоматически удаляются. Время сохраняется с точностью до секунды.</p>
   </main>
@@ -55,7 +55,15 @@ function renderMonth(){
  const total=c.reduce((a,b)=>a+b,0),active=c.filter(Boolean).length,max=Math.max(0,...c);
  $("#monthName").textContent=month.toLocaleDateString("ru-RU",{month:"long",year:"numeric"});
  $("#total").textContent=total;$("#active").textContent=active;$("#avg").textContent=active?(total/active).toFixed(1):"0";$("#max").textContent=max;
- $("#chart").innerHTML=c.map((v,i)=>`<div class="bar ${v?"":"zero"}" style="height:${v?Math.max(6,v/(max||1)*130):4}px" title="${i+1}: ${v}"></div>`).join("");
+ $("#chart").innerHTML=c.map((v,i)=>{
+  const date=new Date(y,m,i+1).toLocaleDateString("ru-RU",{day:"2-digit",month:"long"});
+  return `<div class="bar ${v?"":"zero"}" data-date="${date}" data-count="${v}" style="height:${v?Math.max(6,v/(max||1)*130):4}px"></div>`;
+}).join("");
+document.querySelectorAll(".bar").forEach(bar=>{
+  bar.addEventListener("mouseenter",e=>showChartTip(e.currentTarget));
+  bar.addEventListener("mousemove",e=>moveChartTip(e));
+  bar.addEventListener("mouseleave",hideChartTip);
+});
 }
 
 async function cleanup(){
@@ -94,6 +102,7 @@ function bind(){
  $("#kick").onclick=addKick;$("#undo").onclick=undo;$("#clear").onclick=clearToday;
  $("#prev").onclick=()=>{month.setMonth(month.getMonth()-1);renderMonth()};
  $("#next").onclick=()=>{month.setMonth(month.getMonth()+1);renderMonth()};
+ $("#exportWord").onclick=exportWord;
 }
 
 async function auth(){
@@ -104,6 +113,63 @@ async function auth(){
  user=data.user;return true;
 }
 
+
+let chartTip=null;
+function ensureChartTip(){
+  if(!chartTip){chartTip=document.createElement("div");chartTip.className="chart-tooltip";document.body.appendChild(chartTip);}
+}
+function showChartTip(el){
+  ensureChartTip();
+  const n=Number(el.dataset.count);
+  chartTip.innerHTML=`<b>${el.dataset.date}</b><br>${n} ${pluralKicks(n)}`;
+  chartTip.style.display="block";
+}
+function moveChartTip(e){
+  if(!chartTip)return;
+  let x=e.clientX+14,y=e.clientY+14;
+  const r=chartTip.getBoundingClientRect();
+  if(x+r.width>window.innerWidth-10)x=e.clientX-r.width-14;
+  if(y+r.height>window.innerHeight-10)y=e.clientY-r.height-14;
+  chartTip.style.left=x+"px";chartTip.style.top=y+"px";
+}
+function hideChartTip(){if(chartTip)chartTip.style.display="none"}
+function pluralKicks(n){
+  if(n%10===1&&n%100!==11)return "толчок";
+  if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return "толчка";
+  return "толчков";
+}
+function monthData(){
+  const y=month.getFullYear(),m=month.getMonth(),days=new Date(y,m+1,0).getDate(),c=Array(days).fill(0);
+  kicks.forEach(k=>{const d=new Date(k.created_at);if(d.getFullYear()===y&&d.getMonth()===m)c[d.getDate()-1]++;});
+  return {y,m,c,total:c.reduce((a,b)=>a+b,0),active:c.filter(Boolean).length,max:Math.max(0,...c)};
+}
+function exportWord(){
+  const {y,m,c,total,active,max}=monthData();
+  const avg=active?(total/active).toFixed(1):"0";
+  const name=new Date(y,m,1).toLocaleDateString("ru-RU",{month:"long",year:"numeric"});
+  const rows=c.map((n,i)=>{
+    const d=new Date(y,m,i+1).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
+    return `<tr><td>${d}</td><td>${n}</td></tr>`;
+  }).join("");
+  const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><style>
+  body{font-family:Arial,sans-serif;color:#333;margin:40px}h1{color:#c65f82}
+  table{border-collapse:collapse;width:100%;margin:15px 0}td,th{border:1px solid #ddd;padding:8px}
+  th{background:#f9e4ec}.note{color:#777;font-size:11px;margin-top:25px}
+  </style></head><body><h1>Аналитика движений малыша</h1>
+  <p><b>Период:</b> ${name}</p><h2>Сводка</h2>
+  <table><tr><th>Показатель</th><th>Значение</th></tr>
+  <tr><td>Всего движений</td><td>${total}</td></tr>
+  <tr><td>Активных дней</td><td>${active}</td></tr>
+  <tr><td>Среднее за активный день</td><td>${avg}</td></tr>
+  <tr><td>Максимум за день</td><td>${max}</td></tr></table>
+  <h2>Движения по дням</h2><table><tr><th>Дата</th><th>Количество толчков</th></tr>${rows}</table>
+  <p class="note">Отчёт сформирован автоматически из семейного дневника. Отдельные записи сохраняются с точностью до секунды.</p>
+  </body></html>`;
+  const blob=new Blob(["\ufeff",html],{type:"application/msword"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=`Аналитика_движений_${y}-${String(m+1).padStart(2,"0")}.doc`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
 async function start(){
  if(!cfg.url||!cfg.publishableKey||!cfg.familyId){app.innerHTML='<div class="app"><section class="card"><h2>Не настроено подключение</h2><p class="muted">Проверьте config.js.</p></section></div>';return}
  layout();
